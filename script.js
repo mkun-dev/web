@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 在这里管理你所有的照片
     // 以后增加或删除照片，只需要修改这个数组即可
     const allPhotos = [
+        { src: 'src/images/sb00.png', alt: '作品一描述' },
         { src: 'src/images/sb01.webp', alt: '作品一描述' },
         { src: 'src/images/sb02.webp', alt: '作品二描述' },
         { src: 'src/images/sb03.webp', alt: '作品三描述' },
