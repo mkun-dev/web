@@ -1,0 +1,195 @@
+/* 1. 全局样式和颜色变量 */
+:root {
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --link-color: #007bff;
+    --footer-text-color: #616161;
+    --nav-bg-color: rgba(255, 255, 255, 0.9);
+    --card-bg-color: #ffffff;
+    --border-color: #e0e0e0;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+html.dark-mode {
+    --bg-color: #212121;
+    --text-color: #e0e0e0;
+    --link-color: #58a6ff;
+    --footer-text-color: #a0a0a0;
+    --nav-bg-color: rgba(33, 33, 33, 0.9);
+    --card-bg-color: #2c2c2c;
+    --border-color: #424242;
+}
+html {
+    /* 将背景色只设置在 html 标签上 */
+    background-color: var(--bg-color);
+}
+
+body {
+    /* body 标签负责布局 */
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s; /* transition 可以保留 */
+    
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 1rem; }
+a { color: var(--link-color); text-decoration: none; }
+
+/* 2. 顶部导航栏 */
+.top-nav {
+    position: fixed; /* 修正点：移除了重复的 position: relative; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--nav-bg-color);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+.top-nav .container { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
+.site-name { font-weight: bold; font-size: 1.2rem; color: var(--text-color); }
+.top-nav nav ul { list-style: none; margin: 0; padding: 0; display: flex; }
+.top-nav nav li { margin-left: 1.5rem; }
+.top-nav nav a:hover { color: var(--link-color); }
+
+/* --- SVG 主题切换图标样式 --- */
+
+/* 按钮本身的样式 */
+.theme-switcher-icon {
+    /* 修正点：修复了原有的CSS嵌套错误，并使用绝对定位 */
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+/* SVG 图标的样式 */
+.theme-switcher-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor; /* 关键：让图标颜色跟随主题文字颜色变化 */
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停在按钮上时，图标的动画效果 */
+.theme-switcher-icon:hover svg {
+    transform: scale(1.1) rotate(15deg);
+    color: var(--link-color);
+}
+
+/* 核心逻辑：根据 html 标签上的 dark-mode class 来显示/隐藏对应的图标 */
+
+/* 默认 (亮色模式) 下：隐藏太阳，显示月亮 */
+.icon-sun {
+    display: none;
+}
+.icon-moon {
+    display: block;
+}
+
+/* 暗黑模式下：显示太阳，隐藏月亮 */
+html.dark-mode .icon-sun {
+    display: block;
+}
+html.dark-mode .icon-moon {
+    display: none;
+}
+
+/* 3. 首页封面 */
+.main-cover { display: flex; justify-content: center; align-items: center; flex: 1; text-align: center; }
+.cover-content { max-width: 600px; padding: 2rem; }
+.avatar-large { width: 180px; height: 180px; border-radius: 50%; margin-bottom: 1.5rem;
+    background-color: #eee; object-fit: cover; }
+.cover-name { margin: 0; font-size: 2.8rem; line-height: 1.2; }
+.cover-tagline { font-size: 1.4rem; color: var(--footer-text-color); margin: 0.5rem 0 2.5rem; }
+
+/* 4. 社交图标和二维码 */
+.social-links { margin-top: 2rem; display: flex; justify-content: center; gap: 1.5rem; align-items: center; }
+.social-icon { width: 30px; height: 30px; filter: invert(0.2); transition: filter 0.3s; }
+.social-links a:hover .social-icon { filter: invert(0.0) drop-shadow(0 0 5px var(--link-color)); }
+body.dark-mode .social-icon { filter: invert(0.8); }
+body.dark-mode .social-links a:hover .social-icon { filter: invert(1.0) drop-shadow(0 0 5px var(--link-color)); }
+.social-item-wrapper { position: relative; display: inline-block; }
+.qr-code-popup { position: absolute; bottom: calc(100% + 15px); left: 50%; background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; width: 170px;
+    opacity: 0; visibility: hidden; transform: translate(-50%, 10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; z-index: 10; }
+.qr-code-popup::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border-width: 8px; border-style: solid; border-color: var(--card-bg-color) transparent transparent transparent; }
+.social-item-wrapper:hover .qr-code-popup { opacity: 1; visibility: visible; transform: translateX(-50%); }
+.qr-code-popup img { width: 150px; height: 150px; display: block; }
+.qr-code-popup span { display: block; margin-top: 0.5rem; font-size: 0.85rem; color: var(--footer-text-color); }
+
+/* 5. 页脚 */
+.footer { padding: 1.5rem 1rem; text-align: center; font-size: 0.9rem; color: var(--footer-text-color); }
+.footer .container { border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+
+/* 6. 其他页面通用样式 */
+.page-content { padding: 8rem 0 4rem; flex: 1; }
+.page-content h2 { font-size: 2.5rem; margin-bottom: 2rem; text-align: center; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
+.about-flex { display: flex; gap: 3rem; align-items: flex-start; }
+.about-text { flex: 2; line-height: 1.8; }
+.about-text p { margin-bottom: 1.5rem; }
+.about-image { flex: 1; }
+.about-image img { width: 100%; border-radius: 8px; }
+
+/* style.css */
+
+/* --- ↓↓↓ 在文件末尾添加分页样式 ↓↓↓ --- */
+
+#pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+    gap: 0.5rem;
+}
+
+.pagination-button {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    margin: 0 0.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: var(--border-color);
+}
+
+.pagination-button.active {
+    background-color: var(--link-color);
+    color: white;
+    border-color: var(--link-color);
+    font-weight: bold;
+}
+
+/* 7. 响应式调整 */
+@media (max-width: 768px) {
+    .cover-name { font-size: 2rem; }
+    .cover-tagline { font-size: 1.1rem; }
+    .top-nav .container { flex-direction: column; padding: 1rem; }
+    .top-nav nav ul { margin-top: 0.8rem; flex-wrap: wrap; justify-content: center; }
+    .top-nav nav li { margin: 0.5rem 0.8rem; }
+    .page-content { padding-top: 10rem; } /* 手机端导航栏更高 */
+    .about-flex { flex-direction: column; }
+}
