@@ -102,8 +102,8 @@ def get_photos():
     # 为前端API返回完整的URL
     photos_with_full_url = []
     for p in pagination.items:
-        # 如果 url 是 'src/...' 开头，则保持原样；否则，生成完整的 static 路径
-        final_url = p.url if p.url.startswith('src/') else url_for('static', filename=p.url)
+        # 统一为所有照片生成正确的 /static/... 路径
+        final_url = url_for('static', filename=p.url)
         photos_with_full_url.append({"id": p.id, "url": final_url, "alt": p.alt})
 
     return jsonify({
