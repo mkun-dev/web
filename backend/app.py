@@ -78,17 +78,14 @@ def portfolio():
 def get_about_data():
     content = db.session.get(AboutContent, 1)
     if content:
-        # 注意：这里的 imageUrl 可能是 'src/images/...' 或 'static/uploads/...'
-        # 前端需要能处理这两种情况
-        image_final_url = content.imageUrl
-        if not image_final_url.startswith('src/'):
-            image_final_url = url_for('static', filename=image_final_url)
+        # 统一为图片生成正确的 /static/... 路径
+        final_image_url = url_for('static', filename=content.imageUrl)
 
         return jsonify({
             "paragraph1": content.paragraph1,
             "paragraph2": content.paragraph2,
             "email": content.email,
-            "imageUrl": image_final_url
+            "imageUrl": final_image_url
         })
     return jsonify({"error": "Content not found"}), 404
 
