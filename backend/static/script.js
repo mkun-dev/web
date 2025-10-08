@@ -1,24 +1,10 @@
-// script.js (最终重构版)
+// script.js (最终生产版)
 
 /**
  * ----------------------------------------------------------------
  * 1. 公共函数 (在所有页面都会用到)
  * ----------------------------------------------------------------
  */
-
-// 函数：异步加载公共组件 (页眉/页脚)
-async function loadComponent(elementId, url) {
-    try {
-        const response = await fetch(url);
-        if (response.ok) {
-            document.getElementById(elementId).innerHTML = await response.text();
-        } else {
-            console.error(`Error loading component from ${url}: ${response.statusText}`);
-        }
-    } catch (error) {
-        console.error(`Network error when loading component from ${url}:`, error);
-    }
-}
 
 // 函数：初始化主题切换器 (需要在页眉加载后执行)
 function initializeThemeSwitcher() {
@@ -156,12 +142,6 @@ async function initializeGallery() {
  * ----------------------------------------------------------------
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // 首先，加载所有页面都需要的公共部分 (页眉和页脚)
-    await Promise.all([
-        loadComponent('header-placeholder', '_header.html'),
-        loadComponent('footer-placeholder', '_footer.html')
-    ]);
-
     // 页眉加载完毕后，立刻初始化主题切换器
     initializeThemeSwitcher();
 
