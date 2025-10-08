@@ -1,0 +1,16 @@
+<header class="top-nav">
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="site-name">首页</a>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('about') }}">关于我</a></li>
+                <li><a href="{{ url_for('portfolio') }}">作品集</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <button id="theme-switcher" class="theme-switcher-icon" aria-label="切换颜色主题">
+        <img src="{{ url_for('static', filename='src/icons/moon.svg') }}" alt="切换到暗黑模式" class="icon-moon">
+        <img src="{{ url_for('static', filename='src/icons/sun.svg') }}" alt="切换到亮色模式" class="icon-sun">
+    </button>
+</header>

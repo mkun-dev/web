@@ -1,32 +1,17 @@
-// 主题切换逻辑
-function initializeThemeSwitcher() {
-    const themeSwitcher = document.getElementById('theme-switcher');
-    const htmlElement = document.documentElement;
+// script.js (最终重构版)
 
-    if (!themeSwitcher) return;
-    
-    // 按钮点击事件 (只负责切换 class 和保存状态)
-    themeSwitcher.addEventListener('click', () => {
-        htmlElement.classList.toggle('dark-mode');
-        localStorage.setItem('theme', htmlElement.classList.contains('dark-mode') ? 'dark' : 'light');
-    });
+/**
+ * ----------------------------------------------------------------
+ * 1. 公共函数 (在所有页面都会用到)
+ * ----------------------------------------------------------------
+ */
 
-    // 页面加载时，根据本地存储恢复主题
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        htmlElement.classList.remove('dark-mode');
-    } else {
-        htmlElement.classList.add('dark-mode');
-    }
-}
-
-// 异步加载公共组件 (页眉/页脚) 的函数
+// 函数：异步加载公共组件 (页眉/页脚)
 async function loadComponent(elementId, url) {
     try {
         const response = await fetch(url);
         if (response.ok) {
-            const text = await response.text();
-            document.getElementById(elementId).innerHTML = text;
+            document.getElementById(elementId).innerHTML = await response.text();
         } else {
             console.error(`Error loading component from ${url}: ${response.statusText}`);
         }
@@ -35,124 +20,157 @@ async function loadComponent(elementId, url) {
     }
 }
 
-// 网站主执行函数
-async function main() {
+// 函数：初始化主题切换器 (需要在页眉加载后执行)
+function initializeThemeSwitcher() {
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const htmlElement = document.documentElement;
+
+    if (!themeSwitcher) return;
+    
+    // 恢复本地存储的主题
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        htmlElement.classList.remove('dark-mode');
+    } else {
+        htmlElement.classList.add('dark-mode');
+    }
+    
+    // 按钮点击事件
+    themeSwitcher.addEventListener('click', () => {
+        htmlElement.classList.toggle('dark-mode');
+        localStorage.setItem('theme', htmlElement.classList.contains('dark-mode') ? 'dark' : 'light');
+    });
+}
+
+
+/**
+ * ----------------------------------------------------------------
+ * 2. “关于我”页面的专属函数
+ * ----------------------------------------------------------------
+ */
+async function loadAboutContent() {
+    const aboutContainer = document.querySelector('.about-flex');
+    if (!aboutContainer) return; // 如果页面上没有这个容器，就退出
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/about');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        
+        // 填充数据
+        document.getElementById('about-p1').textContent = data.paragraph1;
+        document.getElementById('about-p2').textContent = data.paragraph2;
+        document.getElementById('about-p3').innerHTML = `这个网站是我展示作品和分享想法的小天地。希望你喜欢这里的照片，也欢迎通过<a id="about-email" href="mailto:${data.email}">邮箱</a>与我交流。`;
+        document.getElementById('about-image').src = data.imageUrl;
+
+    } catch (error) {
+        console.error("无法加载“关于我”的内容:", error);
+        document.getElementById('about-p1').textContent = '内容加载失败，请稍后重试。';
+    }
+}
+
+
+/**
+ * ----------------------------------------------------------------
+ * 3. “作品集”页面的专属函数
+ * ----------------------------------------------------------------
+ */
+async function initializeGallery() {
+    const galleryContainer = document.getElementById('gallery-container');
+    if (!galleryContainer) return; // 如果页面上没有这个容器，就退出
+
+    const paginationContainer = document.getElementById('pagination-container');
+    const photosPerPage = 6;
+    let currentPage = 1;
+    let totalPhotos = 0;
+
+    // (内部函数) 更新分页按钮的激活状态
+    function updatePaginationButtons() {
+        const buttons = document.querySelectorAll('.pagination-button');
+        buttons.forEach((button, index) => {
+            if ((index + 1) === currentPage) button.classList.add('active');
+            else button.classList.remove('active');
+        });
+    }
+    
+    // (内部函数) 根据总数创建分页按钮
+    function setupPagination() {
+        paginationContainer.innerHTML = '';
+        const pageCount = Math.ceil(totalPhotos / photosPerPage);
+        for (let i = 1; i <= pageCount; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.className = 'pagination-button';
+            btn.addEventListener('click', () => displayPage(i));
+            paginationContainer.appendChild(btn);
+        }
+    }
+    
+    // (内部函数) 获取并显示某一页的照片
+    async function displayPage(page) {
+        currentPage = page;
+        galleryContainer.innerHTML = '加载中...';
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/api/photos?page=${page}&limit=${photosPerPage}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            totalPhotos = data.total_photos;
+            galleryContainer.innerHTML = '';
+            
+            data.photos.forEach(photo => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `<img src="${photo.url}" alt="${photo.alt}">`;
+                galleryContainer.appendChild(item);
+            });
+
+        } catch (error) {
+            console.error("无法加载作品:", error);
+            galleryContainer.innerHTML = '<p>加载作品失败，请稍后重试。</p>';
+        }
+        updatePaginationButtons();
+    }
+
+    // 初始化流程
+    try {
+        const initialResponse = await fetch(`http://127.0.0.1:5000/api/photos?page=1&limit=1`);
+        if (!initialResponse.ok) throw new Error('Failed to fetch initial data');
+        const initialData = await initialResponse.json();
+
+        totalPhotos = initialData.total_photos;
+        setupPagination();
+        await displayPage(1);
+
+    } catch (error) {
+        console.error("初始化作品集失败:", error);
+        galleryContainer.innerHTML = '<p>无法连接到服务器。</p>';
+    }
+}
+
+
+/**
+ * ----------------------------------------------------------------
+ * 4. 网站主入口 (所有逻辑从这里开始)
+ * ----------------------------------------------------------------
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+    // 首先，加载所有页面都需要的公共部分 (页眉和页脚)
     await Promise.all([
         loadComponent('header-placeholder', '_header.html'),
         loadComponent('footer-placeholder', '_footer.html')
     ]);
 
-    // 等待页眉加载完毕后，再初始化其中的主题切换器
+    // 页眉加载完毕后，立刻初始化主题切换器
     initializeThemeSwitcher();
-}
 
-// script.js
-
-// ... 您原有的 script.js 代码保持不变 ...
-
-// --- ↓↓↓ 从这里开始添加分页功能代码 ↓↓↓ ---
-
-// 当文档加载完成后，执行与分页相关的操作
-document.addEventListener('DOMContentLoaded', () => {
-    // 检查当前是否在作品集页面
-    const galleryContainer = document.getElementById('gallery-container');
-    if (!galleryContainer) {
-        return; // 如果不在作品集页面，则不执行后续代码
+    // 然后，根据当前页面的特征，选择性地执行对应的专属函数
+    // 这是一个更健壮的“路由”逻辑
+    if (document.getElementById('gallery-container')) {
+        initializeGallery();
+    } else if (document.querySelector('.about-flex')) {
+        loadAboutContent();
     }
-
-    // 1. 在这里管理你所有的照片
-    // 以后增加或删除照片，只需要修改这个数组即可
-    const allPhotos = [
-        { src: 'src/images/sb00.png', alt: '作品一描述' },
-        { src: 'src/images/sb01.webp', alt: '作品一描述' },
-        { src: 'src/images/sb02.webp', alt: '作品二描述' },
-        { src: 'src/images/sb03.webp', alt: '作品三描述' },
-        { src: 'src/images/sb04.webp', alt: '作品四描述' },
-        { src: 'src/images/sb05.webp', alt: '作品五描述' },
-        { src: 'src/images/sb06.webp', alt: '作品六描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        { src: 'src/images/sb07.webp', alt: '作品七描述' },
-        // --- 假设您未来增加了更多照片 ---
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品八', alt: '作品八描述' },
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品九', alt: '作品九描述' },
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品十', alt: '作品十描述' },
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品十一', alt: '作品十一描述' },
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品十二', alt: '作品十二描述' },
-        // { src: 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=作品十三', alt: '作品十三描述' }
-    ];
-
-    const paginationContainer = document.getElementById('pagination-container');
-    let currentPage = 1;
-    const photosPerPage = 6; // 设置每页显示6张照片，您可以修改这个数字
-
-    // 2. 根据当前页码显示照片的函数
-    function displayPage(page) {
-        galleryContainer.innerHTML = ''; // 清空当前所有照片
-        currentPage = page;
-
-        const startIndex = (page - 1) * photosPerPage;
-        const endIndex = startIndex + photosPerPage;
-        const photosToShow = allPhotos.slice(startIndex, endIndex);
-
-        photosToShow.forEach(photo => {
-            const item = document.createElement('div');
-            item.className = 'gallery-item';
-            item.innerHTML = `<img src="${photo.src}" alt="${photo.alt}">`;
-            galleryContainer.appendChild(item);
-        });
-        
-        // 更新分页按钮的激活状态
-        updatePaginationButtons();
-    }
-
-    // 3. 创建并设置分页按钮的函数
-    function setupPagination() {
-        paginationContainer.innerHTML = ''; // 清空分页容器
-        const pageCount = Math.ceil(allPhotos.length / photosPerPage);
-
-        for (let i = 1; i <= pageCount; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.className = 'pagination-button';
-            btn.addEventListener('click', () => {
-                displayPage(i);
-            });
-            paginationContainer.appendChild(btn);
-        }
-    }
-    
-    // 4. 更新分页按钮激活样式的函数
-    function updatePaginationButtons() {
-        const buttons = document.querySelectorAll('.pagination-button');
-        buttons.forEach((button, index) => {
-            if ((index + 1) === currentPage) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-        });
-    }
-
-    // 5. 初始化页面
-    setupPagination();
-    displayPage(1); // 默认显示第一页
+    // 如果是首页(index.html)或其它页面，则不执行任何特殊操作
 });
-
-document.addEventListener('DOMContentLoaded', main);

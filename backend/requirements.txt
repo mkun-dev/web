@@ -1,0 +1,15 @@
+blinker @ file:///home/conda/feedstock_root/build_artifacts/blinker_1731096409132/work
+click @ file:///D:/bld/click_1758270401364/work
+colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1733218098505/work
+Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1755674618058/work
+flask-cors @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_flask-cors_1749615415/work
+Flask-SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_flask-sqlalchemy_1733868589/work
+greenlet @ file:///D:/bld/greenlet_1756752084289/work
+importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_importlib-metadata_1747934053/work
+itsdangerous @ file:///home/conda/feedstock_root/build_artifacts/itsdangerous_1733308265247/work
+Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1741263328855/work
+MarkupSafe @ file:///D:/bld/markupsafe_1759055175616/work
+SQLAlchemy @ file:///D:/bld/sqlalchemy_1759824727636/work
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_typing_extensions_1756220668/work
+Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1733160440960/work
+zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1749421620841/work
