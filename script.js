@@ -53,7 +53,7 @@ async function loadAboutContent() {
     if (!aboutContainer) return; // 如果页面上没有这个容器，就退出
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/about');
+        const response = await fetch('/api/about');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
@@ -112,7 +112,7 @@ async function initializeGallery() {
         currentPage = page;
         galleryContainer.innerHTML = '加载中...';
         try {
-            const response = await fetch(`http://127.0.0.1:5000/api/photos?page=${page}&limit=${photosPerPage}`);
+            const response = await fetch(`/api/photos?page=${page}&limit=${photosPerPage}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -135,7 +135,7 @@ async function initializeGallery() {
 
     // 初始化流程
     try {
-        const initialResponse = await fetch(`http://127.0.0.1:5000/api/photos?page=1&limit=1`);
+        const initialResponse = await fetch(`/api/photos?page=1&limit=1`);
         if (!initialResponse.ok) throw new Error('Failed to fetch initial data');
         const initialData = await initialResponse.json();
 
