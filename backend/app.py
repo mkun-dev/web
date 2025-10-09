@@ -197,7 +197,7 @@ def db_init():
         if not AboutContent.query.first():
             initial_about = AboutContent(
                 id=1,
-                content="你好，我是朱泽宇。我是一名来自西安的摄影爱好者，热衷于通过镜头捕捉日常生活中的平凡之美。对我而言，摄影不仅是技术的展现，更是情感的表达和故事的讲述。", # <--- 修改点
+                content="你好，我是XXX。我是一名来自西安的摄影爱好者，热衷于通过镜头捕捉日常生活中的平凡之美。对我而言，摄影不仅是技术的展现，更是情感的表达和故事的讲述。", # <--- 修改点
                 email="1109004016@qq.com",
                 imageUrl="src/images/sb01.webp"
             )
