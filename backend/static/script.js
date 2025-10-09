@@ -45,9 +45,7 @@ async function loadAboutContent() {
         const data = await response.json();
         
         // 填充数据
-        document.getElementById('about-p1').textContent = data.paragraph1;
-        document.getElementById('about-p2').textContent = data.paragraph2;
-        document.getElementById('about-p3').innerHTML = `这个网站是我展示作品和分享想法的小天地。希望你喜欢这里的照片，也欢迎通过<a id="about-email" href="mailto:${data.email}">邮箱</a>与我交流。`;
+        document.getElementById('about-content').textContent = data.content; 
         document.getElementById('about-image').src = data.imageUrl;
 
     } catch (error) {

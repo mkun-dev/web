@@ -9,20 +9,16 @@
 <body>
     <header class="admin-header">
         <h1>后台管理面板</h1>
-        <a href="/admin/logout" class="logout-btn">退出登录</a>
+        <a href="{{ url_for('admin_logout') }}" class="logout-btn">退出登录</a>
     </header>
 
     <main class="container">
         <section class="card">
             <h2>“关于我”页面内容</h2>
-            <form action="/admin/about" method="post">
+            <form action="{{ url_for('update_about') }}" method="post">
                 <div class="form-group">
-                    <label for="p1">段落一:</label>
-                    <textarea id="p1" name="paragraph1" rows="3">{{ about.paragraph1 }}</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="p2">段落二:</label>
-                    <textarea id="p2" name="paragraph2" rows="5">{{ about.paragraph2 }}</textarea>
+                    <label for="content">介绍文字:</label>
+                    <textarea id="content" name="content" rows="5">{{ about.content }}</textarea>
                 </div>
                 <div class="form-group">
                     <label for="email">邮箱:</label>
@@ -39,7 +35,7 @@
         <section class="card">
             <h2>作品集管理</h2>
             
-            <form action="/admin/photos/upload" method="post" enctype="multipart/form-data" class="upload-form">
+            <form action="{{ url_for('upload_photo') }}" method="post" enctype="multipart/form-data" class="upload-form">
                 <h3>上传新照片</h3>
                 <div class="form-group">
                     <label for="file">选择图片文件:</label>
@@ -58,9 +54,9 @@
             <div class="photo-grid">
                 {% for photo in photos %}
                 <div class="photo-item">
-                    <img src="{{ url_for('static', filename=photo.url.replace('src/', '')) }}" alt="{{ photo.alt }}">
+                    <img src="{{ url_for('static', filename=photo.url) }}" alt="{{ photo.alt }}">
                     <span>{{ photo.alt }}</span>
-                    <form action="/admin/photos/delete/{{ photo.id }}" method="post">
+                    <form action="{{ url_for('delete_photo', photo_id=photo.id) }}" method="post">
                         <button type="submit" class="delete-btn">删除</button>
                     </form>
                 </div>
